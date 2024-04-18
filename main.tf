@@ -15,6 +15,8 @@ data "aws_availability_zones" "available" {}
 
 module "tri-arch-vpc" {
   source = "terraform-aws-modules/vpc/aws"
+  # "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=c182453f881ae77afd14c826dc8e23498b957907" # commit hash of version 5.7.1
+  version = "5.7.1"
 
     name = "tri-arch-vpc"
     cidr = var.vpc_cidr_block

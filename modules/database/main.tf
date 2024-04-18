@@ -73,7 +73,12 @@ resource "aws_db_instance" "app_db" {
   #vpc_security_group_ids = [aws_security_group.alb_sg.id]
   multi_az             = var.enable_multi_az
   iam_database_authentication_enabled = true
-  
+  enabled_cloudwatch_logs_exports = ["general", "error", "slowquery"] # Checkov recommendation 
+  auto_minor_version_upgrade = true # Checkov recommendation 
+  monitoring_interval  = 5 # Checkov recommendation 
+  deletion_protection  = true # Checkov recommendation 
+  performance_insights_enabled = true # Checkov recommendation
+  copy_tags_to_snapshot     = true # Checkov recommendation
 
   tags = {
     Name = "${var.env_prefix}-AppDb"

@@ -58,7 +58,9 @@ resource "aws_lb" "front_end" {
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = var.public_subnets
 
-  enable_deletion_protection = false
+  drop_invalid_header_fields = true # Checkov recommendation 
+
+  enable_deletion_protection = true # Checkov recommendation 
 
   tags = {
     Name = "${var.env_prefix}-frontendLoadBalancer"
@@ -71,6 +73,7 @@ resource "aws_security_group" "alb_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "Webapp Ingress on port 80 for testing"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -78,6 +81,7 @@ resource "aws_security_group" "alb_sg" {
   }
 
   egress {
+    description = "Allow Internet Access to WebApp Server"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -94,6 +98,7 @@ resource "aws_security_group" "app_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "SSH for build agent/Admin working on test environment"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -101,6 +106,7 @@ resource "aws_security_group" "app_sg" {
   }
 
   ingress {
+    description = "Webapp Ingress on port 80 for testing"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -108,6 +114,7 @@ resource "aws_security_group" "app_sg" {
   }
 
   egress {
+    description = "Allow Internet Access to WebApp Server"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -128,6 +135,12 @@ resource "aws_instance" "app" {
   ami           = data.aws_ami.latest-amazon-linux-image.id
   instance_type = var.instance_type
 
+  monitoring = true # Checkov recommendation 
+  ebs_optimized = true # Checkov recommendation 
+  metadata_options { # Checkov recommendation 
+    http_endpoint = "enabled" 
+    http_tokens   = "required" 
+  }
   subnet_id     = element(var.private_subnets, 0)
   security_groups = [aws_security_group.app_sg.id]
   availability_zone = var.avail_zone
